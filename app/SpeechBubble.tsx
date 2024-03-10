@@ -25,7 +25,6 @@ const SpeechBubble: React.FC<SpeechBubbleProps> = ({
     return parts.map((part, index) => {
       if (part.match(urlRegex)) {
         if (part.match(/\.(gif|jpg|jpeg|png)$/i)) {
-          console.log(part);
           return (
             <div key={index} className="relative w-full h-60">
               <Image
