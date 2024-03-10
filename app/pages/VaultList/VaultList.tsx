@@ -15,6 +15,7 @@ interface Vault {
   name: string;
   timeStampCreated: string;
   numberOfPeople: string;
+  convoID: number;
 }
 
 const VaultList: React.FC = () => {
@@ -25,22 +26,68 @@ const VaultList: React.FC = () => {
   const [cache, setCache] = useState(90);
   const [userChatLength, setUserChatLength] = useAtom(globalUserChatLength);
 
+  const [newVaultName, setNewVaultName] = useState();
+  const [desiredVaultID, setDesiredVaultID] = useState();
+
   useEffect(() => {
-    const updatedVaults: Vault[] = userChatLength.map((chat) => ({
-      name: chat[0],
-      timeStampCreated: chat[1],
-      numberOfPeople: chat[2],
-    }));
+    const updatedVaults: Vault[] = userChatLength.map((chat) => {
+      const date = new Date(Number(chat[1].toString()) * 1000);
+      const timeStampCreated = `${date.getFullYear()}-${String(
+        date.getMonth() + 1
+      ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ${String(
+        date.getHours()
+      ).padStart(2, "0")}:${String(date.getMinutes()).padStart(
+        2,
+        "0"
+      )}:${String(date.getSeconds()).padStart(2, "0")}`;
+
+      return {
+        name: chat[0],
+        timeStampCreated: timeStampCreated,
+        numberOfPeople: chat[2].toString(),
+        convoID: chat[3],
+      };
+    });
+
     setVaults(updatedVaults);
+    setNewVaultName(vaultID);
   }, [userChatLength]);
 
   const handleSubmit = async () => {
-    if (address != undefined) {
+    if (address == undefined) return;
+    if (vaultID == userChatLength[0] && desiredVaultID) {
       try {
-        const response = await createVault(vaultID + ".data", address, cache);
-        console.log("Vault created successfully:", response);
+        const response = await writeContract({
+          abi: talk_abi,
+          address: talk_address,
+          functionName: "joinChat",
+          args: [newVaultName, desiredVaultID],
+        });
+        console.log("Vault Joined Successfully:", response);
       } catch (error) {
-        console.error("Error creating vault:", error);
+        console.error("Error Joining vault:", error);
+      }
+    } else {
+      if (address != undefined) {
+        try {
+          const response = await createVault(vaultID + ".data", address, cache);
+          console.log("Vault created successfully:", response);
+          if (response) {
+            try {
+              const res = await writeContract({
+                abi: talk_abi,
+                address: talk_address,
+                functionName: "createChat",
+                args: [[vaultID], vaultID],
+              });
+              console.log(res, "Create Chat Complete");
+            } catch (error) {
+              console.error("Error creating Chat", error);
+            }
+          }
+        } catch (error) {
+          console.error("Error creating vault:", error);
+        }
       }
     }
   };
@@ -56,8 +103,8 @@ const VaultList: React.FC = () => {
   };
 
   return (
-    <div>
-      <h3>{address}</h3>
+    <div className="flex flex-col items-center">
+      {/* <h3>{address}</h3> */}
       {vaults.map((vault, index) => (
         <div key={index} className="flex items-center mb-4">
           <span className="mr-4">{index + 1}</span>
@@ -77,14 +124,27 @@ const VaultList: React.FC = () => {
           onChange={(e) => setVaultID(e.target.value)}
         />
         <input
-          type="number"
-          placeholder="90"
+          type="hidden"
+          placeholder="240"
           value={cache}
+          className="input max-w-xs"
           onChange={(e) => setCache(parseInt(e.target.value))}
         />
-        <button onClick={handleSubmit}>Submit</button>
+        {vaultID == userChatLength[0] ? (
+          <input
+            type="number"
+            onChange={(e) => setDesiredVaultID(BigInt(e))}
+          ></input>
+        ) : (
+          ""
+        )}
+        <button className="btn" onClick={handleSubmit}>
+          Enter
+        </button>
         <br />
-        <button onClick={() => handleCreate()}>Create Chat</button>
+        <button className="btn" onClick={() => handleCreate()}>
+          Create Chat
+        </button>
       </div>
     </div>
   );

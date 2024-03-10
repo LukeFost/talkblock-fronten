@@ -17,23 +17,49 @@ function ReadUserChats(address: "'$0x{string}'" | undefined) {
     enabled: !!address.address,
   });
 
-  const {
-    data: userChatsData,
-    error: userChatsError,
-    isLoading: userChatsLoading,
-  } = useReadContract({
-    address: talk_address,
-    abi: talk_abi,
-    functionName: "userChats",
-    args: address.address
-      ? [
-          address.address,
-          userChatsLengthData ? Number(userChatsLengthData) - 1 : 0,
-        ]
-      : [],
-    enabled: !!userChatsLengthData,
-  });
+  const max = userChatsLengthData ? Number(userChatsLengthData.toString()) : 0;
 
+  const indices = Array.from({ length: max }, (_, index) => index);
+
+  const [getUserChatsData, setUserChat] = useAtom(globalUserChatLength);
+
+  useEffect(() => {
+    console.log(userChatsLengthData);
+  }, [userChatsLengthData]);
+
+  if (userChatsLengthLoading) return <div>Loading...</div>;
+  if (userChatsLengthError)
+    return (
+      <div>
+        Error:{" "}
+        {(userChatsLengthError as unknown as BaseError).shortMessage ||
+          userChatsLengthError.message}
+      </div>
+    );
+
+  return (
+    <>
+      {indices.map((index) => (
+        <ChildComponent
+          key={index}
+          index={index}
+          address={address}
+          setUserChat={setUserChat}
+        />
+      ))}
+    </>
+  );
+}
+
+function ChildComponent({
+  index,
+  address,
+  setUserChat,
+}: {
+  index: number;
+  address: "'$0x{string}'" | undefined;
+  setUserChat: (data: [string, bigint, bigint][]) => void;
+}) {
   const {
     data: userChatsDataFinal,
     error: userChatsErrorFinal,
@@ -42,17 +68,18 @@ function ReadUserChats(address: "'$0x{string}'" | undefined) {
     address: talk_address,
     abi: talk_abi,
     functionName: "idToChat",
-    args: [Number(userChatsData?.toString())],
-    enabled: !!userChatsData,
+    args: [BigInt(index)],
+    enabled: !!address,
   });
 
-  const [getUserChatsData, setUserChat] = useAtom(globalUserChatLength);
-
   useEffect(() => {
-    console.log(userChatsLengthData);
-    console.log(userChatsData, "userChatsData");
-    console.log(userChatsDataFinal, "datafinal");
-  }, [userChatsLengthData, userChatsData, userChatsDataFinal]);
+    if (userChatsDataFinal) {
+      setUserChat((prevData: any) => [
+        ...prevData,
+        userChatsDataFinal as [string, bigint, bigint],
+      ]);
+    }
+  }, [userChatsDataFinal, setUserChat]);
 
   if (userChatsLoadingFinal) return <div>Loading...</div>;
   if (userChatsErrorFinal)
@@ -64,9 +91,6 @@ function ReadUserChats(address: "'$0x{string}'" | undefined) {
       </div>
     );
 
-  if (userChatsDataFinal) {
-    setUserChat(userChatsDataFinal);
-  }
   return null;
 }
 
