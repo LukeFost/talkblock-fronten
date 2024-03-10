@@ -6,11 +6,17 @@ import ConnectButton from "./ConnectButton";
 import { useReadContract } from "wagmi";
 import ReadContract from "./readContract";
 import ChatDisplay from "./ChatDisplay";
-import { createVault, writeText } from "./pages/VaultList/actions";
+import {
+  createVault,
+  writeText,
+  listEvents,
+  getEventText,
+} from "./pages/VaultList/actions";
 import { type UseSignMessageReturnType } from "wagmi";
 import { Hash } from "viem";
 import { useAtom } from "jotai";
 import { globalVaultID } from "./atom";
+import { talk_abi, talk_address } from "./pages/VaultList/TalkBlockABI";
 
 interface Message {
   account: string;
@@ -21,32 +27,7 @@ export default function App() {
   const { address } = useAccount();
   const { signMessage, data, status } = useSignMessage();
   //Message and Inital States
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      account: "0x1234567890abcdef",
-      content: "Hello, how are you today?",
-    },
-    {
-      account: "0xa1b2c3d4e5f67890",
-      content: "I'm good, thanks for asking!",
-    },
-    {
-      account: "0x1234567890abcdef",
-      content: "What are you up to?",
-    },
-    {
-      account: "0xa1b2c3d4e5f67890",
-      content: "Just doing some coding.",
-    },
-    {
-      account: "0xa1b2c3d4e5f67890",
-      content: "I can smell ya",
-    },
-    {
-      account: "0x1234567890abcdef",
-      content: "ayo bruh wtf",
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
 
   // callback states
   const [newFile, setNewFile] = useState<string>("");
@@ -128,20 +109,31 @@ export default function App() {
       const prefix = `\x19Ethereum Signed Message:\n${pendingNewMessage.length}`;
       const newMessage = prefix + pendingNewMessage;
       console.log(
-        vaultID,
+        vaultID + ".data",
         "|",
         newMessage,
         "|",
         Date.now(),
         "|",
-        sigString,
-        "Numer UNO"
+        sigString
       );
-      await writeText(vaultID, newMessage, Date.now(), sigString);
+      await writeText(vaultID + ".data", newMessage, Date.now(), sigString);
     };
     if (!signatureData) return;
     else handleSignMake();
   }, [pendingNewMessage, signatureData]);
+
+  useEffect(() => {
+    async function getJiggy() {
+      const events = await listEvents(vaultID + ".data");
+      console.log(events);
+      const getMsg = await getEventText(events[0].cid);
+      console.log(getMsg);
+    }
+    if (!vaultID) return;
+    else getJiggy();
+  }, [signatureData, vaultID]);
+
   return (
     <main>
       <ReadContract />

@@ -2,18 +2,21 @@
 import React from "react";
 
 interface VaultDisplayProps {
-  lastMessage: string;
-  account: string;
+  name: string;
+  timeStampCreated: string;
+  numberOfPeople: string;
 }
 
 const VaultDisplay: React.FC<VaultDisplayProps> = ({
-  lastMessage,
-  account,
+  name,
+  timeStampCreated,
+  numberOfPeople,
 }) => {
   return (
     <div className="bg-gray-200 p-4 mb-4">
-      <p>Last Message: {lastMessage}</p>
-      <p>Account: {account}</p>
+      <p>Convo Name: {name}</p>
+      <p>Number of Peeps: {numberOfPeople}</p>
+      <p>TimeStamp :{timeStampCreated}</p>
     </div>
   );
 };

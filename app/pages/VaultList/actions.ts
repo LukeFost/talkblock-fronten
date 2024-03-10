@@ -57,3 +57,81 @@ export async function writeText(
     console.error("Error writing event:", error);
   }
 }
+
+export async function listEvents(vaultId: string) {
+  try {
+    const url = `https://basin.tableland.xyz/vaults/${vaultId}/events`;
+    const response = await axios.get(url);
+
+    if (response.status === 200) {
+      console.log("Events:", response.data);
+      return response.data; // This is an array of events
+    } else {
+      console.error(
+        "Failed to list events:",
+        response.status,
+        response.statusText
+      );
+      return null;
+    }
+  } catch (error) {
+    console.error("Error listing events:", error);
+    return null;
+  }
+}
+
+export async function getEventText(eventID: string) {
+  try {
+    const url = `https://basin.tableland.xyz/events/${eventID}`;
+    const response = await axios.get(url, { responseType: "text" });
+    // console.log(response);
+    let data = response.data;
+    if (response.status === 200) {
+      const contentDisposition = response.headers["content-disposition"];
+      let filename = null;
+
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
+        if (filenameMatch) {
+          filename = filenameMatch[1];
+        }
+      }
+
+      if (!filename) {
+        console.error("Filename not found in Content-Disposition");
+        return null;
+      }
+      let extension = null;
+      // console.log(filename);
+      //Add more file extension types here
+      if (filename.endsWith(".jpg")) {
+        extension = ".jpg";
+      } else if (filename.endsWith(".txt")) {
+        extension = ".txt";
+      } else if (filename.endsWith(".gif")) {
+        extension = ".gif";
+      } else {
+        console.error("Unsupported file type");
+        return null;
+      }
+      // console.log(extension);
+      const tildeIndex = data.indexOf("~");
+      data = data.substring(tildeIndex + 1);
+      // console.log(data, extension == ".txt", extension == ".gif");
+      if (extension == ".txt") {
+        // console.log("Here");
+        // const buffer = Buffer.from(data);
+        return data;
+      }
+      return null;
+      if (extension == ".txt") {
+        console.log("Here");
+        // const buffer = Buffer.from(data);
+        return data;
+      }
+    }
+  } catch (error) {
+    // console.error("Error downloading event:", error);
+    return null;
+  }
+}

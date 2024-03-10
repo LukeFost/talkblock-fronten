@@ -1,32 +1,38 @@
 // VaultList.tsx
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import VaultDisplay from "./VaultDisplay";
 import { createVault } from "./actions";
 import { useAccount } from "wagmi";
-import { useWriteContract } from "wagmi";
+import { useWriteContract, useReadContract } from "wagmi";
 import { talk_abi, talk_address } from "./TalkBlockABI";
 import { type UseWriteContractReturnType } from "wagmi";
 import { useAtom } from "jotai";
-import { globalVaultID } from "../../atom";
+import { globalVaultID, globalUserChatLength } from "../../atom";
+import ReadUserChats from "@/app/readUserChats";
 
 interface Vault {
-  id: string;
-  lastMessage: string;
-  account: string;
+  name: string;
+  timeStampCreated: string;
+  numberOfPeople: string;
 }
 
 const VaultList: React.FC = () => {
-  const [vaults, setVaults] = useState<Vault[]>([
-    { id: "vault1", lastMessage: "Hello", account: "0x1234567890" },
-    { id: "vault2", lastMessage: "Hi there", account: "0x0987654321" },
-  ]);
-
-  const { data, error, status, writeContract } = useWriteContract();
-
   const { address } = useAccount();
+  const [vaults, setVaults] = useState<Vault[]>([]);
+  const { data, error, status, writeContract } = useWriteContract();
   const [vaultID, setVaultID] = useAtom(globalVaultID);
-  const [cache, setCache] = useState(0);
+  const [cache, setCache] = useState(90);
+  const [userChatLength, setUserChatLength] = useAtom(globalUserChatLength);
+
+  useEffect(() => {
+    const updatedVaults: Vault[] = userChatLength.map((chat) => ({
+      name: chat[0],
+      timeStampCreated: chat[1],
+      numberOfPeople: chat[2],
+    }));
+    setVaults(updatedVaults);
+  }, [userChatLength]);
 
   const handleSubmit = async () => {
     if (address != undefined) {
@@ -53,15 +59,16 @@ const VaultList: React.FC = () => {
     <div>
       <h3>{address}</h3>
       {vaults.map((vault, index) => (
-        <div key={vault.id} className="flex items-center mb-4">
+        <div key={index} className="flex items-center mb-4">
           <span className="mr-4">{index + 1}</span>
           <VaultDisplay
-            lastMessage={vault.lastMessage}
-            account={vault.account}
+            name={vault.name}
+            timeStampCreated={vault.timeStampCreated}
+            numberOfPeople={vault.numberOfPeople}
           />
         </div>
       ))}
-
+      <ReadUserChats address={address} />
       <div>
         <input
           type="text"
@@ -71,7 +78,7 @@ const VaultList: React.FC = () => {
         />
         <input
           type="number"
-          placeholder="Cache"
+          placeholder="90"
           value={cache}
           onChange={(e) => setCache(parseInt(e.target.value))}
         />
