@@ -32,9 +32,9 @@ const ChatDisplay: React.FC<ChatDisplayProps> = ({
   }, [messages]);
 
   return (
-    <div className="flex justify-center pt-5 sm:pt-0 w-max">
-      <div className="bg-slate-400 w-full p-4 h-2/3 flex flex-col justify-between">
-        <div className="overflow-y-auto max-h-[calc(100vh-200px)] scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-300">
+    <div className="flex justify-center pt-5 sm:pt-0 w-full">
+      <div className="bg-white w-full max-w-2xl p-4 h-[calc(100vh-200px)] flex flex-col justify-between rounded-lg shadow-lg">
+        <div className="overflow-y-auto flex-grow scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
           {messages.map((message, index) => (
             <SpeechBubble
               key={index}

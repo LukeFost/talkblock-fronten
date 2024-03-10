@@ -1,4 +1,4 @@
-export const talk_address = "0x57967CEFbD8686b99De28CF54406C1EB18373A19";
+export const talk_address = "0x2246De2953036E35C4dEd543A1bA2FA40bD3927e";
 // export const talk_abi = [
 //   {
 //     inputs: [
@@ -122,7 +122,6 @@ export const talk_address = "0x57967CEFbD8686b99De28CF54406C1EB18373A19";
 //     type: "function",
 //   },
 // ] as const;
-
 export const talk_abi = [
   {
     inputs: [
@@ -300,6 +299,30 @@ export const talk_abi = [
   {
     inputs: [
       {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "nameUserToVault",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "",
         type: "address",
@@ -316,6 +339,25 @@ export const talk_abi = [
         internalType: "uint256",
         name: "",
         type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    name: "vaultToUser",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
       },
     ],
     stateMutability: "view",

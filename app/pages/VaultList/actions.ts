@@ -135,3 +135,55 @@ export async function getEventText(eventID: string) {
     return null;
   }
 }
+
+const eventCache = new Map();
+
+export async function buildJson(vaultIDs: string[]) {
+  let allEvents = [];
+
+  for (let v = 0; v < vaultIDs.length; v++) {
+    const vaultID = vaultIDs[v];
+    console.log("Processing Vault ID:", vaultID);
+
+    if (eventCache.has(vaultID)) {
+      const cachedEvents = eventCache.get(vaultID);
+      allEvents.push(...cachedEvents);
+    } else {
+      try {
+        const events = await listEvents(vaultID);
+        console.log("Events for Vault ID", vaultID, events);
+
+        const eventsWithInfo = [];
+        for (let i = 0; i < events.length; i++) {
+          try {
+            const info = await getEventText(events[i].cid);
+            if (info) {
+              eventsWithInfo.push({ ...events[i], info, vaultID });
+            }
+          } catch (error) {
+            console.error(
+              "Error getting event text for Vault ID",
+              vaultID,
+              "Event CID",
+              events[i].cid,
+              error
+            );
+          }
+        }
+
+        eventCache.set(vaultID, eventsWithInfo);
+        allEvents.push(...eventsWithInfo);
+      } catch (error) {
+        console.error("Error listing events for Vault ID", vaultID, error);
+      }
+    }
+  }
+
+  allEvents.sort((a, b) => b.timestamp - a.timestamp);
+
+  for (let i = 0; i < allEvents.length; i++) {
+    console.log(`Event ${i}:`, allEvents[i]);
+  }
+
+  return allEvents;
+}

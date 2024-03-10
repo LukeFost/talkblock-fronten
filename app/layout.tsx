@@ -23,13 +23,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Link className="btn" href="/pages/VaultList">
-          Vault List
-        </Link>
-        <br />
-        <Link className="btn" href="/">
-          Chat
-        </Link>
         <ContextProvider initialState={initialState}>
           {children}
         </ContextProvider>

@@ -3,7 +3,6 @@ import { talk_abi, talk_address } from "./pages/VaultList/TalkBlockABI";
 import { useAtom } from "jotai";
 import { globalUserChatLength } from "./atom";
 import { useEffect } from "react";
-
 function ReadUserChats(address: "'$0x{string}'" | undefined) {
   const {
     data: userChatsLengthData,
@@ -16,29 +15,25 @@ function ReadUserChats(address: "'$0x{string}'" | undefined) {
     args: address.address ? [address.address] : [],
     enabled: !!address.address,
   });
-
   const max = userChatsLengthData ? Number(userChatsLengthData.toString()) : 0;
-
   const indices = Array.from({ length: max }, (_, index) => index);
-
   const [getUserChatsData, setUserChat] = useAtom(globalUserChatLength);
-
   useEffect(() => {
     console.log(userChatsLengthData);
   }, [userChatsLengthData]);
-
   if (userChatsLengthLoading) return <div>Loading...</div>;
   if (userChatsLengthError)
     return (
       <div>
+        {" "}
         Error:{" "}
         {(userChatsLengthError as unknown as BaseError).shortMessage ||
-          userChatsLengthError.message}
+          userChatsLengthError.message}{" "}
       </div>
     );
-
   return (
     <>
+      {" "}
       {indices.map((index) => (
         <ChildComponent
           key={index}
@@ -46,11 +41,10 @@ function ReadUserChats(address: "'$0x{string}'" | undefined) {
           address={address}
           setUserChat={setUserChat}
         />
-      ))}
+      ))}{" "}
     </>
   );
 }
-
 function ChildComponent({
   index,
   address,
@@ -71,7 +65,6 @@ function ChildComponent({
     args: [BigInt(index)],
     enabled: !!address,
   });
-
   useEffect(() => {
     if (userChatsDataFinal) {
       setUserChat((prevData: any) => [
@@ -80,18 +73,16 @@ function ChildComponent({
       ]);
     }
   }, [userChatsDataFinal, setUserChat]);
-
   if (userChatsLoadingFinal) return <div>Loading...</div>;
   if (userChatsErrorFinal)
     return (
       <div>
+        {" "}
         Error:{" "}
         {(userChatsErrorFinal as unknown as BaseError).shortMessage ||
-          userChatsErrorFinal.message}
+          userChatsErrorFinal.message}{" "}
       </div>
     );
-
   return null;
 }
-
 export default ReadUserChats;

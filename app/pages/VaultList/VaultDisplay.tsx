@@ -1,5 +1,6 @@
 // VaultDisplay.tsx
 import React from "react";
+import Link from "next/link";
 
 interface VaultDisplayProps {
   name: string;
@@ -20,6 +21,9 @@ const VaultDisplay: React.FC<VaultDisplayProps> = ({
       <p>ID:{convoID}</p>
       <p>Number of Peeps: {numberOfPeople}</p>
       <p>TimeStamp :{timeStampCreated}</p>
+      <Link href={`/?convoID=${convoID}`}>
+        <button className="btn">Open Chat</button>
+      </Link>
     </div>
   );
 };

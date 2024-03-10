@@ -17,7 +17,6 @@ interface Vault {
   numberOfPeople: string;
   convoID: number;
 }
-
 const VaultList: React.FC = () => {
   const { address } = useAccount();
   const [vaults, setVaults] = useState<Vault[]>([]);
@@ -48,7 +47,6 @@ const VaultList: React.FC = () => {
         convoID: chat[3],
       };
     });
-
     setVaults(updatedVaults);
     setNewVaultName(vaultID);
   }, [userChatLength]);
@@ -104,7 +102,6 @@ const VaultList: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center">
-      {/* <h3>{address}</h3> */}
       {vaults.map((vault, index) => (
         <div key={index} className="flex items-center mb-4">
           <span className="mr-4">{index + 1}</span>
@@ -112,6 +109,7 @@ const VaultList: React.FC = () => {
             name={vault.name}
             timeStampCreated={vault.timeStampCreated}
             numberOfPeople={vault.numberOfPeople}
+            convoID={index} // Pass the index as convoID
           />
         </div>
       ))}
@@ -130,14 +128,10 @@ const VaultList: React.FC = () => {
           className="input max-w-xs"
           onChange={(e) => setCache(parseInt(e.target.value))}
         />
-        {vaultID == userChatLength[0] ? (
-          <input
-            type="number"
-            onChange={(e) => setDesiredVaultID(BigInt(e))}
-          ></input>
-        ) : (
-          ""
-        )}
+        <input
+          type="number"
+          onChange={(e) => setDesiredVaultID(BigInt(e))}
+        ></input>
         <button className="btn" onClick={handleSubmit}>
           Enter
         </button>
